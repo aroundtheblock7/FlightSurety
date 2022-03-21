@@ -28,6 +28,7 @@ To run truffle tests:
 To use the dapp:
 
 `truffle migrate` (PLEASE USE GANACHE UI ON PORT 7545)
+
 `npm run dapp`
 
 To view dapp:
