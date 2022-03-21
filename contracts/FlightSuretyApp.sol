@@ -25,8 +25,11 @@ contract FlightSuretyApp {
         dataContract = FlightSuretyData(_dataContract);
     }
 
+    //Fallback function for funding smart contract.
     function() external payable {}
 
+    //Modifier that calls the isOperational function & requires the state var "operational" (bool) to be true in the data contract
+    //This is used on all state changing functions to pause the contract in the event there is an issue that needs to be fixed
     modifier requireIsOperational() {
         // Modify to call data contract's status
         require(
@@ -36,6 +39,7 @@ contract FlightSuretyApp {
         _;
     }
 
+    //Modifier that requires the "ContractOwner" account to be the function caller
     modifier requireContractOwner() {
         require(msg.sender == contractOwner, "Caller is not contract owner");
         _;
@@ -53,6 +57,11 @@ contract FlightSuretyApp {
         return dataContract.isOperational();
     }
 
+    //Add an airline to the registration
+    //must get list of addresses in a array before deciding how to handle registration with "if else" statement
+    //if airline is one of first 4 being registered than it can be added by calling addToRegisteredAirlines in the data contract
+    //if airline is 5th airline than it must be voted for. This is done by calling voteForAirline function
+    //if airline has recieved > 50% of votes, it can be registered by calling addToRegisteredAirline function
     function registerAirline(address airline)
         public
         requireIsOperational
@@ -97,6 +106,8 @@ contract FlightSuretyApp {
         }
     }
 
+    //Airline submits funding.
+    //Call the "setFundingSubmitted" function in the data contract which flips the fundingSubmitted property to true
     function submitAirlineRegistrationFund()
         external
         payable
@@ -114,6 +125,7 @@ contract FlightSuretyApp {
         dataContract.setFundingSubmitted(msg.sender);
     }
 
+    //Register a future flight for insuring.
     function registerFlight(
         address airlineID,
         string flight,
@@ -141,6 +153,7 @@ contract FlightSuretyApp {
         emit OracleRequest(index, airlineID, flight, timestamp);
     }
 
+    //Called after oracle has updated flight status
     function processFlightStatus(
         address airlineID,
         string flight,
